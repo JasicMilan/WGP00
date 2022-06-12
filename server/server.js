@@ -1,14 +1,36 @@
-const express= require('express')
+const express = require('express')
+const fileupload = require('express-fileupload')
+
 const app = express()
 
-index=[{ id: 1, name: '1.jpg'},
-        {id: 2, name: '2.jpg'}]
+app.use(fileupload({
+    createParentPath: true
+}));
+//app.use(express.json())
+//app.use(bodyParser.json());
 
-index.push({id:3, name:'3.jpg'})
+let size = 3;
+index=[{ id: 1, name: '1.jpg'},
+        {id: 2, name: '2.jpg'},
+        {id: 3, name: '3.jpg'}]
+
+app.get('/', (req, res) => {
+    res.send(index);
+})
 
 app.get('/:id', (req, res) => {
     console.log(req.params.id);
     res.sendFile(index[parseInt(req.params.id)].name,  { root: __dirname + "/images"})
 })
 
-app.listen(3000, () => console.log('Server started'))
+app.post('/test',(req, res) => {
+    //console.log(req.body)
+    const image = req.files.myFile
+    const path = __dirname + '/images/' + image.name
+
+    image.mv(path)
+    index.push({id: size + 1, name: image.name})
+    res.send(size)
+})
+
+app.listen(5000, () => console.log('Server started'))

@@ -1,3 +1,10 @@
 # WGP00
 
-test
+
+In server dir:
+
+npm init
+npm install express
+
+node server.js
+____

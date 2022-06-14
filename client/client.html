@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Web Gallery Project</title>
+</head>
+
+<body id = "body"> 
+    <form>
+        <input type="file" id="fileUpload" accept="image/*" />
+    </form>
+
+    <div id="Modal">
+        <button id="Left"> Prev </button>
+        <button id="Right"> Next </button>
+        <br>
+        <img id="img">
+    </div>
+    
+    <script>
+        //get index data 
+        let x;
+    
+        Start()
+        async function Start(){
+            const test = await fetch('http://localhost:5000/');
+
+            data = await test.json();
+
+            setInterval(update, 1000);
+            img(data);
+        }
+
+        //upload
+        document.querySelector('#fileUpload').addEventListener('change', event => {
+            handleImageUpload(event);
+        })
+
+        const handleImageUpload = event => {
+        const files = event.target.files;
+        const formData = new FormData();
+        formData.append('myFile', files[0]);
+
+        fetch('http://localhost:5000/upload', {
+            method: 'POST',
+            body: formData
+        })
+
+        }
+
+        //modal image
+        function image(str){
+            var range = +str;
+
+            var modal = document.getElementById("Modal");
+            var left = document.getElementById("Left");
+            var right = document.getElementById("Right");
+
+            var img = document.getElementById(str);
+            var modalImg = document.getElementById("img");
+
+            img.onclick = function(){
+                modalImg.src = 'http://localhost:5000/' + str;
+            }
+
+            left.onclick = function(){
+                if(range < 2 || range > +data[0].size){
+                     range = +data[0].size;
+                }
+                else{
+                    range = range - 1;
+                }
+                modalImg.src = 'http://localhost:5000/' + range.toString();
+            }
+
+            right.onclick = function(){
+                if(range < 1 || range >= +data[0].size){
+                     range = 1;
+                }
+                else{
+                    range = range + 1;
+                }
+                modalImg.src = 'http://localhost:5000/' + range.toString();
+            }
+        }
+
+        //update image list
+        function addimg(i){
+                var img = document.createElement("img");
+                img.setAttribute("src" , 'http://localhost:5000/' + data[i].id);
+                img.setAttribute("style","border:5px solid white");
+                img.setAttribute("width" , 50);
+                img.setAttribute("height" , 50);
+                img.setAttribute("id" , data[i].id);
+                img.setAttribute("onclick", "image(id)");
+                var name = document.createTextNode(data[i].name);
+    
+                img.appendChild(name);
+                document.getElementById('body').appendChild(img);
+        }
+
+        //all img
+        function img(data) {
+            for (var i = 1; i < +data[0].size +1; i++) {
+                var img = document.createElement("img");
+                img.setAttribute("src" , 'http://localhost:5000/' + data[i].id);
+                img.setAttribute("style","border:5px solid white");
+                img.setAttribute("width" , 50);
+                img.setAttribute("height" , 50);
+                img.setAttribute("id" , data[i].id);
+                img.setAttribute("onclick", "image(id)");
+                var name = document.createTextNode(data[i].name);
+    
+                img.appendChild(name);
+                document.getElementById('body').appendChild(img);
+            }
+        }
+
+        //setInterval(update, 1000);
+
+        function update(){
+            test();
+        }
+
+        async function test(){
+            const test = await fetch('http://localhost:5000/')
+
+            res = await test.json();
+            let x= +data[0].size + 1;
+                if(+res[0].size > +data[0].size){
+                    data.push(res[x]);
+                    data[0].size = x.toString();
+
+                    addimg( +data[0].size);
+                }
+            console.log( +data[0].size);
+            }
+    </script>
+
+</body>
+</html> 
